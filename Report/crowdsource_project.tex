@@ -72,8 +72,151 @@
 \end{center}
 
 \section*{EM without prior}
-We treat $A$ as our observed variables, $t$ as latent variables and $p$ as parameters. Then the full distribution will be given as:
+We treat $\textbf{A}$ as our observed variables, $\textbf{t}$ as latent variables and $\textbf{p}$ as parameters. Then the joint distribution will be given as:
 \begin{align*}
-P
+P(\textbf{A},\textbf{t}|\textbf{p}) &= P(\textbf{A}|\textbf{t},\textbf{p})P(\textbf{t}|\textbf{p}) \\
+&= P(\textbf{A}|\textbf{t},\textbf{p})P(\textbf{t}) \tag{Since true labels are independent of worker abilities} \\
+&=\prod_{(i,j)\in E}P(A_{ij}|t_i,p_j)\prod_{i}^{n}P(t_i) \\
 \end{align*}
+
+\noindent
+where,
+\begin{align*}
+P(A_{ij}|t_i,p_j) &= p_j\mathbb{I}(A_{ij}=t_i)+(1-p_j)\mathbb{I}(A_{ij}=-t_i) \\
+P(t_i) &= 
+\frac{3}{4}\mathbb{I}(t_i=1)+\frac{1}{4}\mathbb{I}(t_i=-1)
+\end{align*}
+
+\subsection*{E-Step:}
+In the \textbf{E} step we find the distribution of the latent variables as a function of the observed variables and parameters estimated in the previous iteration.
+\begin{align*}
+P(\textbf{t}|\textbf{A},\textbf{p}^{old}) &= 
+\prod_{i=1}^{n} P(t_i|\textbf{A},\textbf{p}^{old})
+\end{align*}
+
+\noindent
+where,
+\begin{align*}
+P(t_i|\textbf{A},\textbf{p}^{old}) &=
+P(t_i|\textbf{A}_{i\delta_i},\textbf{p}_{\delta_i}^{old}) \\
+&= 
+\frac{
+P(\textbf{A}_{i\delta_i},\textbf{t}_i|\textbf{p}_{\delta_i}^{old})
+} 	
+{
+P(\textbf{A}_{i\delta_i}|\textbf{p}_{\delta_i}^{old})
+} \\
+&=
+\frac{
+P(t_i)\prod_{j\in \delta_i} P(A_{ij}|t_i,p_j^{old})
+}
+{
+\sum_{t_i} P(t_i)\prod_{j\in \delta_i} P(A_{ij}|t_i,p_j^{old})
+} \\
+&= \gamma_i(t_i)
+\end{align*}
+
+\subsection*{M-Step:}
+In this we approximate the log likelihood of the observed data using the expected log likelihood of the observed and latent variables together where the expectation is with respect to the distribution of the latent variables computed in the \textbf{E} step
+\begin{align*}
+Q(\textbf{p}|\textbf{p}^{old}) &= 
+\mathbb{E}_{
+\textbf{t}|\textbf{A},\textbf{p}^{old}
+}
+\left[
+\log{
+P(\textbf{A},\textbf{t}|\textbf{p})
+}
+\right] \\
+&=
+\sum_{\textbf{t}\in \{-1,1\}^n} 
+P(\textbf{t}|\textbf{A},\textbf{p}^{old})
+\log{
+P(\textbf{A},\textbf{t}|\textbf{p})
+} \\
+&= 
+\sum_{\textbf{t}\in \{-1,1\}^n}
+\left[
+\left(
+\prod_{i=1}^{n} P(t_i|\textbf{A},\textbf{p}^{old})
+\right)
+\sum_{i=1}^{n}
+\left(
+\log{P(t_i|\textbf{p})} +
+\sum_{j\in \delta_i} 
+\log P(A_{ij}|t_i,p_j) 
+\right)
+\right] \\
+&=
+\sum_{i=1}^{n}
+\sum_{t_i} \gamma_i(t_i) 
+\left[
+\log{P(t_i|\textbf{p})} +
+\sum_{j\in \delta_i} 
+\log P(A_{ij}|t_i,p_j) 
+\right] \\
+&=
+\sum_{i=1}^{n}
+\sum_{t_i} \gamma_i(t_i) 
+\left[
+\log{P(t_i)} +
+\sum_{j\in \delta_i} 
+\log P(A_{ij}|t_i,p_j) 
+\right]
+\end{align*}
+
+\noindent
+Now to maximize $Q(\textbf{p}|\textbf{p}^{old})$ with respect to $\textbf{p}$ we set the derivatives to zero.
+\begin{align*}
+& \frac{\partial{Q}}{\partial{p_j}} = 0 \\
+\implies &
+\sum_{i\in \delta_j} 
+\sum_{t_i} \gamma_i(t_i)
+\left(
+\frac{1}{p_j}\mathbb{I}(A_{ij}=t_i) -
+\frac{1}{1-p_j}\mathbb{I}(A_{ij}=-t_i)
+\right) 
+= 0 \\
+\implies &
+\sum_{i\in \delta_j} 
+\left[
+\gamma_i(1)
+\left(
+\frac{1}{p_j}\mathbb{I}(A_{ij}=1) -
+\frac{1}{1-p_j}\mathbb{I}(A_{ij}=-1)
+\right) +
+\left(1-\gamma_i(1)\right)
+\left(
+\frac{1}{p_j}\mathbb{I}(A_{ij}=-1) -
+\frac{1}{1-p_j}\mathbb{I}(A_{ij}=1)
+\right) 
+\right]
+= 0 \\
+\implies &
+\sum_{i\in \delta_j} 
+\left[
+\left(
+\gamma_i(1)-p_j
+\right) 
+\mathbb{I}(A_{ij}=1) +
+\left(
+1-\gamma_i(1) - p_j
+\right) 
+\mathbb{I}(A_{ij}=-1)
+\right] 
+= 0 \\
+\implies &
+p_j = 
+\frac{
+\sum_{i\in \delta_j} 
+\gamma_i(1)
+\mathbb{I}(A_{ij}=1) +
+\left(
+1-\gamma_i(1)
+\right) 
+\mathbb{I}(A_{ij}=-1)
+}
+{|\delta_j|}
+\end{align*}
+
 \end{document}
