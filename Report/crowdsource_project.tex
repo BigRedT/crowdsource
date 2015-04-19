@@ -115,11 +115,26 @@ where,
 } \\
 &= \gamma_i(t_i)
 \end{align*}
-
+In the sequel, allowing for a slight abuse of notation, we need only refer to
+\begin{align*}
+  \gamma_i:=\gamma_i(1)&=\mathbb{P}(t_i=1|\textbf{A},\textbf{p}^{{\rm old}})\\
+  &=\frac{\mathbb{P}(A_{i\partial i}|t_i=1,{\bf p})\mathbb{P}(t_i=1)}{\mathbb{P}(A_{i\partial i}|t_i=1,{\bf p})\mathbb{P}(t_i=1)+\mathbb{P}(A_{i\partial i}|t_i=-1,{\bf p})\mathbb{P}(t_i=-1)}\\
+  &=\frac{\frac{3}{4}\prod_{j\in\partial i} p_j^{\mathbb{I}(A_{ij}=1)}(1-p_j)^{\mathbb{I}(A_{ij}=-1)}}{\frac{3}{4}\prod_{j\in\partial i} p_j^{\mathbb{I}(A_{ij}=1)}(1-p_j)^{\mathbb{I}(A_{ij}=-1)}+\frac{1}{4}\prod_{j\in\partial i} p_j^{\mathbb{I}(A_{ij}=-1)}(1-p_j)^{\mathbb{I}(A_{ij}=1)}}\\
+  &=\frac{\frac{3}{4}\prod_{j\in\partial i} \left[\frac{1}{2}+\frac{2p_j-1}{2}A_{ij}\right]}{\frac{3}{4}\prod_{j\in\partial i} \left[\frac{1}{2}+\frac{2p_j-1}{2}A_{ij}\right]+\frac{1}{4}\prod_{j\in\partial i} \left[\frac{1}{2}-\frac{2p_j-1}{2}A_{ij}\right]}
+\end{align*}
 \subsection*{M-Step:}
 In this we approximate the log likelihood of the observed data using the expected log likelihood of the observed and latent variables together where the expectation is with respect to the distribution of the latent variables computed in the \textbf{E} step
 \begin{align*}
 Q(\textbf{p}|\textbf{p}^{{\rm old}}) &= 
+\mathbb{E}_{
+{\bf \gamma}
+}
+\left[
+\log{
+\mathbb{P}(\textbf{A},\textbf{t}|\textbf{p})
+}
+\right] \\
+&=
 \mathbb{E}_{
 \textbf{t}|\textbf{A},\textbf{p}^{{\rm old}}
 }
@@ -157,38 +172,45 @@ Q(\textbf{p}|\textbf{p}^{{\rm old}}) &=
 \right] \\
 &=
 \sum_{i=1}^{n}
-\sum_{t_i} \gamma_i(t_i) 
+\Bigg\{\gamma_i 
 \left[
-\log{\mathbb{P}(t_i)} +
+\log{\mathbb{P}(t_i=1)} +
 \sum_{j\in \partial i} 
-\log \mathbb{P}(A_{ij}|t_i,p_j) 
+\log \mathbb{P}(A_{ij}|t_i=1,p_j) 
+\right]\\
+&\qquad+(1-\gamma_i)
+\left[
+\log{\mathbb{P}(t_i=-1)} +
+\sum_{j\in \partial i} 
+\log \mathbb{P}(A_{ij}|t_i=-1,p_j) 
 \right]
+\Bigg\}
 \end{align*}
 
 \noindent
 Now to maximize $Q(\textbf{p}|\textbf{p}^{{\rm old}})$ with respect to $\textbf{p}$ we set the derivatives to zero.
 \begin{align*}
 & \frac{\partial{Q}}{\partial{p_j}} = 0 \\
-\implies &
-\sum_{i\in \partial j} 
-\sum_{t_i} \gamma_i(t_i)
-\left(
-\frac{1}{p_j}\mathbb{I}(A_{ij}=t_i) -
-\frac{1}{1-p_j}\mathbb{I}(A_{ij}=-t_i)
-\right) 
-= 0 \\
+%\implies &
+%\sum_{i\in \partial j} 
+%\sum_{t_i} \gamma_i(t_i)
+%\left(
+%\frac{1}{p_j}\mathbb{I}(A_{ij}=t_i) -
+%\frac{1}{1-p_j}\mathbb{I}(A_{ij}=-t_i)
+%\right) 
+%= 0 \\
 \implies &
 \sum_{i\in \partial j} 
 \left[
-\gamma_i(1)
+\gamma_i
 \left(
-\frac{1}{p_j}\mathbb{I}(A_{ij}=1) -
-\frac{1}{1-p_j}\mathbb{I}(A_{ij}=-1)
+\frac{\mathbb{I}(A_{ij}=1)}{p_j} -
+\frac{\mathbb{I}(A_{ij}=-1)}{1-p_j}
 \right) +
-\left(1-\gamma_i(1)\right)
+\left(1-\gamma_i\right)
 \left(
-\frac{1}{p_j}\mathbb{I}(A_{ij}=-1) -
-\frac{1}{1-p_j}\mathbb{I}(A_{ij}=1)
+\frac{\mathbb{I}(A_{ij}=-1)}{p_j} -
+\frac{\mathbb{I}(A_{ij}=1)}{1-p_j}
 \right) 
 \right]
 = 0 \\
@@ -196,35 +218,34 @@ Now to maximize $Q(\textbf{p}|\textbf{p}^{{\rm old}})$ with respect to $\textbf{
 \sum_{i\in \partial j} 
 \left[
 \left(
-\gamma_i(1)-p_j
+\gamma_i-p_j
 \right) 
 \mathbb{I}(A_{ij}=1) +
 \left(
-1-\gamma_i(1) - p_j
+1-\gamma_i - p_j
 \right) 
 \mathbb{I}(A_{ij}=-1)
 \right] 
 = 0 \\
 \implies &
 p_j = 
-\frac{
+\frac{1}{|\partial j|}
 \sum_{i\in \partial j} 
-\gamma_i(1)
+\left[\gamma_i
 \mathbb{I}(A_{ij}=1) +
 \left(
-1-\gamma_i(1)
+1-\gamma_i
 \right) 
-\mathbb{I}(A_{ij}=-1)
-}
-{|\partial j|}
+\mathbb{I}(A_{ij}=-1)\right]
 \end{align*}
 
 \section*{EM with Beta Prior}
 
 Instead, we seek to maximize the objective 
-\begin{equation*}
-   Q({\bf p}|{\bf p}^{\rm old})=\mathbb{E}_{\gamma}\left[\ln\mathbb{P}(\bf{A},|\bf{p})+\ln\mathbb{P({\bf p})}\right]=\sum_{i=1}^n \left[\gamma_i\ln{\frac{3}{4}a_i+(1-\gamma_i)\ln\frac{1}{4}b_i}\right]+\sum_{j=1}^m\ln f\left(\frac{p_j-0.1}{0.9}\right),
-\end{equation*}
+\begin{align*}
+   Q({\bf p}|{\bf p}^{\rm old})&=\mathbb{E}_{\gamma}\left[\ln\mathbb{P}(\bf{A}|\bf{p})+\ln\mathbb{P({\bf p})}\right]\\
+   &=\sum_{i=1}^n \left[\gamma_i\ln{\frac{3}{4}a_i+(1-\gamma_i)\ln\frac{1}{4}b_i}\right]+\sum_{j=1}^m\ln f\left(\frac{p_j-0.1}{0.9}\right),
+\end{align*}
 where 
 \begin{align*}
 a_i&:=\mathbb{P}(A_{i\partial i}|t_i=1,{\bf p})=\prod_{j\in\partial i} p_j^{\mathbb{I}(A_{ij}=1)}(1-p_j)^{\mathbb{I}(A_{ij}=-1)}\\
