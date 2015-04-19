@@ -4,10 +4,10 @@
 \usepackage{graphicx}
 \usepackage{fancyvrb}
 \usepackage{cite}
-\usepackage[ampersand]{easylist}
+%\usepackage[ampersand]{easylist}
 \usepackage{listings}
 \usepackage[margin=0.5in]{geometry}
-\usepackage{marginnote}
+%\usepackage{marginnote}
 
 \newcommand{\indep}{\rotatebox[origin=c]{90}{$\models$}}
 \DeclareMathOperator*{\argmin}{arg\,min}
@@ -74,44 +74,44 @@
 \section*{EM without prior}
 We treat $\textbf{A}$ as our observed variables, $\textbf{t}$ as latent variables and $\textbf{p}$ as parameters. Then the joint distribution will be given as:
 \begin{align*}
-P(\textbf{A},\textbf{t}|\textbf{p}) &= P(\textbf{A}|\textbf{t},\textbf{p})P(\textbf{t}|\textbf{p}) \\
-&= P(\textbf{A}|\textbf{t},\textbf{p})P(\textbf{t}) \tag{Since true labels are independent of worker abilities} \\
-&=\prod_{(i,j)\in E}P(A_{ij}|t_i,p_j)\prod_{i}^{n}P(t_i) \\
+\mathbb{P}(\textbf{A},\textbf{t}|\textbf{p}) &= \mathbb{P}(\textbf{A}|\textbf{t},\textbf{p})\mathbb{P}(\textbf{t}|\textbf{p}) \\
+&= \mathbb{P}(\textbf{A}|\textbf{t},\textbf{p})\mathbb{P}(\textbf{t}) \tag{Since true labels are independent of worker abilities} \\
+&=\prod_{(i,j)\in E}\mathbb{P}(A_{ij}|t_i,p_j)\prod_{i}^{n}\mathbb{P}(t_i) \\
 \end{align*}
 
 \noindent
 where,
 \begin{align*}
-P(A_{ij}|t_i,p_j) &= p_j\mathbb{I}(A_{ij}=t_i)+(1-p_j)\mathbb{I}(A_{ij}=-t_i) \\
-P(t_i) &= 
+\mathbb{P}(A_{ij}|t_i,p_j) &= p_j\mathbb{I}(A_{ij}=t_i)+(1-p_j)\mathbb{I}(A_{ij}=-t_i) \\
+\mathbb{P}(t_i) &= 
 \frac{3}{4}\mathbb{I}(t_i=1)+\frac{1}{4}\mathbb{I}(t_i=-1)
 \end{align*}
 
 \subsection*{E-Step:}
 In the \textbf{E} step we find the distribution of the latent variables as a function of the observed variables and parameters estimated in the previous iteration.
 \begin{align*}
-P(\textbf{t}|\textbf{A},\textbf{p}^{old}) &= 
-\prod_{i=1}^{n} P(t_i|\textbf{A},\textbf{p}^{old})
+\mathbb{P}(\textbf{t}|\textbf{A},\textbf{p}^{{\rm old}}) &= 
+\prod_{i=1}^{n} \mathbb{P}(t_i|\textbf{A},\textbf{p}^{{\rm old}})
 \end{align*}
 
 \noindent
 where,
 \begin{align*}
-P(t_i|\textbf{A},\textbf{p}^{old}) &=
-P(t_i|\textbf{A}_{i\delta_i},\textbf{p}_{\delta_i}^{old}) \\
+\mathbb{P}(t_i|\textbf{A},\textbf{p}^{{\rm old}}) &=
+\mathbb{P}(t_i|\textbf{A}_{i\partial i},\textbf{p}_{\partial i}^{{\rm old}}) \\
 &= 
 \frac{
-P(\textbf{A}_{i\delta_i},\textbf{t}_i|\textbf{p}_{\delta_i}^{old})
+\mathbb{P}(\textbf{A}_{i\partial i},\textbf{t}_i|\textbf{p}_{\partial i}^{{\rm old}})
 } 	
 {
-P(\textbf{A}_{i\delta_i}|\textbf{p}_{\delta_i}^{old})
+\mathbb{P}(\textbf{A}_{i\partial i}|\textbf{p}_{\partial i}^{{\rm old}})
 } \\
 &=
 \frac{
-P(t_i)\prod_{j\in \delta_i} P(A_{ij}|t_i,p_j^{old})
+\mathbb{P}(t_i)\prod_{j\in \partial i} \mathbb{P}(A_{ij}|t_i,p_j^{{\rm old}})
 }
 {
-\sum_{t_i} P(t_i)\prod_{j\in \delta_i} P(A_{ij}|t_i,p_j^{old})
+\sum_{t_i} \mathbb{P}(t_i)\prod_{j\in \partial i} \mathbb{P}(A_{ij}|t_i,p_j^{{\rm old}})
 } \\
 &= \gamma_i(t_i)
 \end{align*}
@@ -119,58 +119,58 @@ P(t_i)\prod_{j\in \delta_i} P(A_{ij}|t_i,p_j^{old})
 \subsection*{M-Step:}
 In this we approximate the log likelihood of the observed data using the expected log likelihood of the observed and latent variables together where the expectation is with respect to the distribution of the latent variables computed in the \textbf{E} step
 \begin{align*}
-Q(\textbf{p}|\textbf{p}^{old}) &= 
+Q(\textbf{p}|\textbf{p}^{{\rm old}}) &= 
 \mathbb{E}_{
-\textbf{t}|\textbf{A},\textbf{p}^{old}
+\textbf{t}|\textbf{A},\textbf{p}^{{\rm old}}
 }
 \left[
 \log{
-P(\textbf{A},\textbf{t}|\textbf{p})
+\mathbb{P}(\textbf{A},\textbf{t}|\textbf{p})
 }
 \right] \\
 &=
 \sum_{\textbf{t}\in \{-1,1\}^n} 
-P(\textbf{t}|\textbf{A},\textbf{p}^{old})
+\mathbb{P}(\textbf{t}|\textbf{A},\textbf{p}^{{\rm old}})
 \log{
-P(\textbf{A},\textbf{t}|\textbf{p})
+\mathbb{P}(\textbf{A},\textbf{t}|\textbf{p})
 } \\
 &= 
 \sum_{\textbf{t}\in \{-1,1\}^n}
 \left[
 \left(
-\prod_{i=1}^{n} P(t_i|\textbf{A},\textbf{p}^{old})
+\prod_{i=1}^{n} \mathbb{P}(t_i|\textbf{A},\textbf{p}^{{\rm old}})
 \right)
 \sum_{i=1}^{n}
 \left(
-\log{P(t_i|\textbf{p})} +
-\sum_{j\in \delta_i} 
-\log P(A_{ij}|t_i,p_j) 
+\log{\mathbb{P}(t_i|\textbf{p})} +
+\sum_{j\in \partial i} 
+\log \mathbb{P}(A_{ij}|t_i,p_j) 
 \right)
 \right] \\
 &=
 \sum_{i=1}^{n}
 \sum_{t_i} \gamma_i(t_i) 
 \left[
-\log{P(t_i|\textbf{p})} +
-\sum_{j\in \delta_i} 
-\log P(A_{ij}|t_i,p_j) 
+\log{\mathbb{P}(t_i|\textbf{p})} +
+\sum_{j\in \partial i} 
+\log \mathbb{P}(A_{ij}|t_i,p_j) 
 \right] \\
 &=
 \sum_{i=1}^{n}
 \sum_{t_i} \gamma_i(t_i) 
 \left[
-\log{P(t_i)} +
-\sum_{j\in \delta_i} 
-\log P(A_{ij}|t_i,p_j) 
+\log{\mathbb{P}(t_i)} +
+\sum_{j\in \partial i} 
+\log \mathbb{P}(A_{ij}|t_i,p_j) 
 \right]
 \end{align*}
 
 \noindent
-Now to maximize $Q(\textbf{p}|\textbf{p}^{old})$ with respect to $\textbf{p}$ we set the derivatives to zero.
+Now to maximize $Q(\textbf{p}|\textbf{p}^{{\rm old}})$ with respect to $\textbf{p}$ we set the derivatives to zero.
 \begin{align*}
 & \frac{\partial{Q}}{\partial{p_j}} = 0 \\
 \implies &
-\sum_{i\in \delta_j} 
+\sum_{i\in \partial j} 
 \sum_{t_i} \gamma_i(t_i)
 \left(
 \frac{1}{p_j}\mathbb{I}(A_{ij}=t_i) -
@@ -178,7 +178,7 @@ Now to maximize $Q(\textbf{p}|\textbf{p}^{old})$ with respect to $\textbf{p}$ we
 \right) 
 = 0 \\
 \implies &
-\sum_{i\in \delta_j} 
+\sum_{i\in \partial j} 
 \left[
 \gamma_i(1)
 \left(
@@ -193,7 +193,7 @@ Now to maximize $Q(\textbf{p}|\textbf{p}^{old})$ with respect to $\textbf{p}$ we
 \right]
 = 0 \\
 \implies &
-\sum_{i\in \delta_j} 
+\sum_{i\in \partial j} 
 \left[
 \left(
 \gamma_i(1)-p_j
@@ -208,7 +208,7 @@ Now to maximize $Q(\textbf{p}|\textbf{p}^{old})$ with respect to $\textbf{p}$ we
 \implies &
 p_j = 
 \frac{
-\sum_{i\in \delta_j} 
+\sum_{i\in \partial j} 
 \gamma_i(1)
 \mathbb{I}(A_{ij}=1) +
 \left(
@@ -216,7 +216,50 @@ p_j =
 \right) 
 \mathbb{I}(A_{ij}=-1)
 }
-{|\delta_j|}
+{|\partial j|}
 \end{align*}
 
+\section*{EM with Beta Prior}
+
+Instead, we seek to maximize the objective 
+\begin{equation*}
+   Q({\bf p}|{\bf p}^{\rm old})=\mathbb{E}_{\gamma}\left[\ln\mathbb{P}(\bf{A},|\bf{p})+\ln\mathbb{P({\bf p})}\right]=\sum_{i=1}^n \left[\gamma_i\ln{\frac{3}{4}a_i+(1-\gamma_i)\ln\frac{1}{4}b_i}\right]+\sum_{j=1}^m\ln f\left(\frac{p_j-0.1}{0.9}\right),
+\end{equation*}
+where 
+\begin{align*}
+a_i&:=\mathbb{P}(A_{i\partial i}|t_i=1,{\bf p})=\prod_{j\in\partial i} p_j^{\mathbb{I}(A_{ij}=1)}(1-p_j)^{\mathbb{I}(A_{ij}=-1)}\\
+b_i&:=\mathbb{P}(A_{i\partial i}|t_i=-1,{\bf p})=\prod_{j\in\partial i} p_j^{\mathbb{I}(A_{ij}=-1)}(1-p_j)^{\mathbb{I}(A_{ij}=1)},
+\end{align*}
+and
+\begin{equation*}
+ f(z)=\frac{1}{B(\alpha,\beta)}(z)^{\alpha-1}(1-z)^{\beta-1}
+\end{equation*}
+We take the gradient
+\begin{align*}
+   \frac{\partial{Q}}{\partial{p_j}}&=\sum_{i\in\partial j}\left\{\gamma_i\left[\frac{\mathbb{I}(A_{ij}=1)}{p_j}-\frac{\mathbb{I}(A_{ij}=-1)}{1-p_j}\right]+(1-\gamma_i)\left[\frac{\mathbb{I}(A_{ij}=-1)}{p_j}-\frac{\mathbb{I}(A_{ij}=1)}{1-p_j}\right]\right\}+\frac{\alpha-1}{p_j-0.1}-\frac{\beta-1}{1-p_j}\\
+   &=\sum_{i\in\partial j}\left\{\frac{\gamma_i\mathbb{I}(A_{ij}=1)+(1-\gamma_i)(\mathbb{I}(A_{ij}=-1))}{p_j}-\frac{(1-\gamma_i)\mathbb{I}(A_{ij}=1)+\gamma_i(\mathbb{I}(A_{ij}=-1))}{1-p_j}\right\}+\frac{\alpha-1}{p_j-0.1}-\frac{\beta-1}{1-p_j}\\
+   &=\sum_{i\in\partial j}\left\{\frac{\gamma_iA_{ij}-A_{ij}+1}{p_j}-\frac{A_{ij}-\gamma_iA_{ij}+1}{1-p_j}\right\}+\frac{\alpha-1}{p_j-0.1}-\frac{\beta-1}{1-p_j}.
+\end{align*}
+We then solve for the critical point
+\begin{align*}
+\frac{\partial{Q}}{\partial{p_j}}=0
+\end{align*}
+which implies
+\begin{align*}
+  0=(p_j-0.1)\sum_{i\in\partial j}\left\{\gamma_i\mathbb{I}(A_{ij}=1)+(1-\gamma_i)\mathbb{I}(A_{ij}=-1)-p_j\right\}+(\alpha-1)p_j(1-p_j)-(\beta-1)p_j(p_j-0.1).
+\end{align*}
+Define
+\begin{equation*}
+  \lambda_j:=\frac{1}{|\partial j|}\sum_{i\in\partial j}\left[\gamma_i\mathbb{I}(A_{ij}=1)+(1-\gamma_i)\mathbb{I}(A_{ij}=-1)\right].
+\end{equation*}
+Then, we may more compactly write the quadratic equation
+\begin{equation*}
+  0=(p_j-0.1)|\partial j|[\lambda_j-p_j]+(\alpha-1)p_j(1-p_j)-(\beta-1)p_j(p_j-0.1).
+\end{equation*}
+Alternatively, suppose we approximated $p_j$ as $\operatorname{Beta}(\alpha,\beta)$, then the above becomes
+\begin{align*}
+  0&=|\partial j|(\lambda_j-p_j)+(\alpha-1)(1-p_j)-(\beta-1)p_j\\
+  &\implies \lambda_j|\partial j|+\alpha-1=(|\partial j|+\alpha+\beta-2)p_j\\
+  &\implies p_j=\frac{\sum_{i\in\partial j}\left[\gamma_i\mathbb{I}(A_{ij}=1)+(1-\gamma_i)\mathbb{I}(A_{ij}=-1)\right]+\alpha-1}{|\partial j|+\alpha+\beta-2}
+\end{align*}
 \end{document}
