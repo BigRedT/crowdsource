@@ -48,6 +48,7 @@ since $w_{ij}\geq0$ for every $i,j\in\{1,\dotsc,N\}$.
 
 c) Given the Metropolis-Hastings rule that samples $i,i'\sim\operatorname{Unif}(\{1,\dotsc, N\})$ and swaps $\sigma(i)$ and $\sigma(i')$ with probability
 \begin{equation*}
- R = \min\left\{1, \exp(-w_{i\sigma(i)}-w_{i'\sigma(i')}+w_{i\sigma(i')}+w_{i'\sigma(i)}) \right\}
+ R = \min\left\{1, \exp(-w_{i\sigma(i)}-w_{i'\sigma(i')}+w_{i\sigma(i')}+w_{i'\sigma(i)}) \right\},
 \end{equation*}
+we may lower bound the probability of a valid transition $\mathbb{P}(\sigma)$
 \end{document}
