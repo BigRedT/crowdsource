@@ -45,7 +45,7 @@ for t=1:args.iterMax
     
     delta_task_prob = norm(prob_t_given_A_p_new-prob_t_given_A_p_old,Inf);
     delta_worker_prob = norm(worker_abilities_new-worker_abilities_old,Inf);
-    disp(['Iteration:' num2str(t) ' delta_task_prob:' num2str(delta_task_prob) ' delta_worker_prob:' num2str(delta_worker_prob)]);
+%     disp(['Iteration:' num2str(t) ' delta_task_prob:' num2str(delta_task_prob) ' delta_worker_prob:' num2str(delta_worker_prob)]);
     prob_t_given_A_p_old = prob_t_given_A_p_new;
     worker_abilities_old = worker_abilities_new;
 end
