@@ -1,0 +1,10 @@
+num_workers = 30;
+num_tasks = 2000;
+edge_budget = 30000;
+% [A,~,~] = createGraph(num_workers,num_tasks,'method','project','frac_edges',2000.0/num_workers/num_tasks);
+[A,~,~] = createGraph(num_workers,num_tasks,'method','random_connected');
+graph_init = abs(A);
+[error,error_r,num_edges] = adaptiveCrowdSource(graph_init,edge_budget);
+save('error.mat','error');
+save('error_r.mat','error_r');
+save('num_edges.mat','error_r');
