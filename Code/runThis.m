@@ -3,7 +3,7 @@ num_workers = 30;
 num_tasks = 2000;
 graph = genGraph(num_tasks,num_workers,10);
 % [A,t,p] = createGraph(num_workers,num_tasks,'method','custom','graph',graph);
-[A,t,p] = createGraph(num_workers,num_tasks,'method','project','frac_edges',4000.0/num_workers/num_tasks);
+[A,t,p] = createGraph(num_workers,num_tasks,'method','project','frac_edges',0.5);%4000.0/num_workers/num_tasks);
 
 prob_t_given_A_p = rand(num_tasks,1);
 [prob_t_given_A_p,worker_abilities] = EM(A,prob_t_given_A_p,'iterMax',30,'prior','betaPrior');

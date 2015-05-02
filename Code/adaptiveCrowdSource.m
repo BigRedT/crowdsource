@@ -15,10 +15,12 @@ graph_r = graph_init;
 error = [];
 num_edges = [];
 error_r = [];
+elapsed_time = [];
 while(num_edges_used<edge_budget)
+    tStart = tic;
     worker_counts = sum(abs(A),2);
-    figure(1),histvals=histc(worker_counts,[0:1:num_workers]);
-    bar(histvals);
+%     figure(1),histvals=histc(worker_counts,[0:1:num_workers]);
+%     bar(histvals);
     xlim([0, 30]);
     %% Run EM
     prob_t_given_A_p_init = rand(num_tasks,1);
@@ -56,36 +58,46 @@ while(num_edges_used<edge_budget)
     workers_per_task = sum(abs(A),2);
     sorted_workers_per_task = workers_per_task(sort_idx);
     finished_mask = sorted_workers_per_task==num_workers;
-    filtered_sort_idx = sort_idx(finished_mask);
+    filtered_sort_idx = sort_idx(~finished_mask);
     
     workers_per_task_r = sum(abs(A_r),2);
     sorted_workers_per_task_r = workers_per_task_r(sort_idx_r);
     finished_mask_r = sorted_workers_per_task_r==num_workers;
-    filtered_sort_idx_r = sort_idx(finished_mask_r);
+    filtered_sort_idx_r = sort_idx_r(~finished_mask_r);
     
     %% Select top num_task_chosen tasks
-    num_tasks_chosen = round(edges_per_level);
+    num_tasks_chosen = min(round(edges_per_level),numel(filtered_sort_idx));
+    num_tasks_chosen_r = min(round(edges_per_level),numel(filtered_sort_idx_r));
         
     %% A,p = updategraph(A,t,p,chosen_task_idx)
     % Select workers to work on task, sample new workers if needed, sample
     % new entries for A
+    
     [A,p] = updategraph(A,t,p,filtered_sort_idx(1:num_tasks_chosen));
-    [A_r,p] = updategraph(A_r,t,p,filtered_sort_idx_r(1:num_tasks_chosen));
+    [A_r,p] = updategraph(A_r,t,p,filtered_sort_idx_r(1:num_tasks_chosen_r));
+    
     
     %% Update num edges used
     num_edges_used = sum(abs(A(:)));
+    elapsed_time = [elapsed_time toc(tStart)];
     
-    figure(2)
-    semilogy(num_edges,error(:,1),'b-');
-    hold on;
-    semilogy(num_edges,error_r(:,1),'r-');
-    hold off;
-    legend({'EdgeAdapt','Random'});
-    xlabel('number of edges used')
-    ylabel('percent task assignment error')
-    
+    clc;
+    [error(:,1) error_r(:,1)]
+%     figure(2)
+%     semilogy(num_edges,error(:,1),'b-');
+%     hold on;
+%     semilogy(num_edges,error_r(:,1),'r-');
+%     hold off;
+%     legend({'EdgeAdapt','Random'});
+%     xlabel('number of edges used')
+%     ylabel('percent task assignment error')
+%     
+%     figure(3)
+%     plot(num_edges, elapsed_time, 'b-');
 end
-    
+   
+
+tStart = tic;
 prob_t_given_A_p_init = rand(num_tasks,1);
 [prob_t_given_A_p,worker_abilities] = EM(A,prob_t_given_A_p_init,'iterMax',30,'prior','betaPrior');
     
@@ -107,11 +119,16 @@ pred_labels_r(task_mask_r) = 0;
 [perc_err_r, work_err_r] = compute_error(t,pred_labels_r,p,worker_abilities_r);
 error_r = [error_r; [perc_err_r, work_err_r]];
 
-figure(2)
-plot(num_edges,error(:,1),'b-');
-hold on;
-plot(num_edges,error_r(:,1),'r-');
-hold off;
-xlabel('number of edges used')
-ylabel('percent task assignment error')
-legend({'EdgeAdapt','Random'});
+tStop = toc(tStart);
+elapsed_time = [elapsed_time tStop];
+% figure(2)
+% plot(num_edges,error(:,1),'b-');
+% hold on;
+% plot(num_edges,error_r(:,1),'r-');
+% hold off;
+% xlabel('number of edges used')
+% ylabel('percent task assignment error')
+% legend({'EdgeAdapt','Random'});
+% 
+% figure(3)
+% plot(num_edges, elapsed_time, 'b-');

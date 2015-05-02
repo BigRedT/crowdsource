@@ -11,12 +11,12 @@ for i=1:1000
     recall(i) = num_catches/num_errors;
     precision(i) = num_catches/K(i);
 end
-figure(35);
-subplot(1,2,1), plot(recall,precision,'r-');
-xlabel('Recall');
-ylabel('Precision');
-axis([0 1 0 1])
-subplot(1,2,2), plot(K,precision,'b-');
-xlabel('Number of ranked tasks observed');
-ylabel('Precision');
-axis([1 T*num_tasks 0 1])
+% figure(35);
+% subplot(1,2,1), plot(recall,precision,'r-');
+% xlabel('Recall');
+% ylabel('Precision');
+% axis([0 1 0 1])
+% subplot(1,2,2), plot(K,precision,'b-');
+% xlabel('Number of ranked tasks observed');
+% ylabel('Precision');
+% axis([1 T*num_tasks 0 1])
