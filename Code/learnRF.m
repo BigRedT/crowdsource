@@ -1,4 +1,4 @@
-function model = learnRF(graph,ensemble_size)
+function model = learnRF(graph,ensemble_size,prior_type)
 prob_t_given_A_p = cell(ensemble_size,1);
 worker_abilities = cell(ensemble_size,1);
 t = cell(ensemble_size,1);
@@ -6,7 +6,7 @@ t = cell(ensemble_size,1);
 for T=1:ensemble_size
     [A,t{T},p] = createGraph(num_workers,num_tasks,'method','custom','graph',graph);
     prob_t_given_A_p_init = rand(num_tasks,1);
-    [prob_t_given_A_p{T},worker_abilities{T}] = EM(A,prob_t_given_A_p_init,'iterMax',40,'prior','betaPrior');
+    [prob_t_given_A_p{T},worker_abilities{T}] = EM(A,prob_t_given_A_p_init,'iterMax',30,'prior',prior_type);
 end
 true_t = cell2mat(t);
 prob_t = cell2mat(prob_t_given_A_p);

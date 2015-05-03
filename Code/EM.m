@@ -46,7 +46,7 @@ for t=1:args.iterMax
                 %% Solve quadratic
                 a = -(num_tasks_by_worker_j + alpha + beta - 2);
                 b = num_tasks_by_worker_j*(lambda(j) + 0.1) + alpha + 0.1*beta - 1.1;
-                c = 0.1*num_tasks_by_worker_j*lambda(j);
+                c = -0.1*num_tasks_by_worker_j*lambda(j);
                 r(j,:) = roots([a,b,c])';
                 worker_abilities_new(j) = max(abs(r(j,:)));
             else
@@ -54,7 +54,7 @@ for t=1:args.iterMax
                 r(j,:) = [-2, -2];
             end
         end
-        worker_abilities_new = rescale_prob(worker_abilities_new,'method','smart_rescale','lb',0.1,'ub',0.99);
+        worker_abilities_new = rescale_prob(worker_abilities_new,'method','trunc','lb',0.1,'ub',0.99);
     end
     
     

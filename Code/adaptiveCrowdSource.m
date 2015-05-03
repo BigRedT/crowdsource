@@ -1,7 +1,7 @@
-function [error,error_r,num_edges] = adaptiveCrowdSource(graph_init,edge_budget)
+function [error,error_r,num_edges] = adaptiveCrowdSource(graph_init,edge_budget,prior_type,par_idx)
 
 %% Pipeline Parameters
-RF_ensemble_size = 10;
+RF_ensemble_size = 5;
 num_edges_graph_init = sum(graph_init(:));
 num_levels = 100;
 edges_per_level = (edge_budget - num_edges_graph_init)/num_levels;
@@ -21,11 +21,11 @@ while(num_edges_used<edge_budget)
     worker_counts = sum(abs(A),2);
 %     figure(1),histvals=histc(worker_counts,[0:1:num_workers]);
 %     bar(histvals);
-    xlim([0, 30]);
+%    xlim([0, 30]);
     %% Run EM
     prob_t_given_A_p_init = rand(num_tasks,1);
-    [prob_t_given_A_p,worker_abilities] = EM(A,prob_t_given_A_p_init,'iterMax',30,'prior','betaPrior');
-    [prob_t_given_A_p_r,worker_abilities_r] = EM(A_r,prob_t_given_A_p_init,'iterMax',30,'prior','betaPrior');
+    [prob_t_given_A_p,worker_abilities] = EM(A,prob_t_given_A_p_init,'iterMax',30,'prior',prior_type);
+    [prob_t_given_A_p_r,worker_abilities_r] = EM(A_r,prob_t_given_A_p_init,'iterMax',30,'prior',prior_type);
         
     %% Compute error
     pred_labels = 2*(prob_t_given_A_p > 0.5) - 1;
@@ -43,7 +43,7 @@ while(num_edges_used<edge_budget)
     error_r = [error_r; [perc_err_r, work_err_r]];
         
     %% learn RF
-    RF_model = learnRF(graph,RF_ensemble_size);
+    RF_model = learnRF(graph,RF_ensemble_size,prior_type);
     
     %% Gen features
     features = genFeatures(prob_t_given_A_p,worker_abilities,graph);
@@ -81,8 +81,8 @@ while(num_edges_used<edge_budget)
     num_edges_used = sum(abs(A(:)));
     elapsed_time = [elapsed_time toc(tStart)];
     
-    clc;
-    [error(:,1) error_r(:,1)]
+    
+    [error(:,1) error_r(:,1)];
 %     figure(2)
 %     semilogy(num_edges,error(:,1),'b-');
 %     hold on;
@@ -99,7 +99,7 @@ end
 
 tStart = tic;
 prob_t_given_A_p_init = rand(num_tasks,1);
-[prob_t_given_A_p,worker_abilities] = EM(A,prob_t_given_A_p_init,'iterMax',30,'prior','betaPrior');
+[prob_t_given_A_p,worker_abilities] = EM(A,prob_t_given_A_p_init,'iterMax',30,'prior',prior_type);
     
 %% Compute error
 pred_labels = 2*(prob_t_given_A_p > 0.5) - 1;
@@ -110,7 +110,7 @@ error = [error; [perc_err, work_err]];
 num_edges = [num_edges; num_edges_used];
 
 %% Random graph
-[prob_t_given_A_p_r,worker_abilities_r] = EM(A_r,prob_t_given_A_p_init,'iterMax',30,'prior','betaPrior');
+[prob_t_given_A_p_r,worker_abilities_r] = EM(A_r,prob_t_given_A_p_init,'iterMax',30,'prior',prior_type);
     
 %% Compute error random update
 pred_labels_r = 2*(prob_t_given_A_p_r > 0.5) - 1;
@@ -121,6 +121,7 @@ error_r = [error_r; [perc_err_r, work_err_r]];
 
 tStop = toc(tStart);
 elapsed_time = [elapsed_time tStop];
+
 % figure(2)
 % plot(num_edges,error(:,1),'b-');
 % hold on;
@@ -132,3 +133,5 @@ elapsed_time = [elapsed_time tStop];
 % 
 % figure(3)
 % plot(num_edges, elapsed_time, 'b-');
+
+%save(['Data/' num2str(par_idx) '_' prior_type '.mat'],'error','error_r','A','A_r');

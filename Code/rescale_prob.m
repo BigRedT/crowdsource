@@ -20,6 +20,7 @@ elseif(strcmp(args.method,'trunc'))
     prob(mask_to_trunc_pos) = args.lb;
 elseif(strcmp(args.method,'smart_rescale'))
     if(max(prob)>args.ub)
+        disp('Inside Smart Rescale')
         mask_pos = mask & prob>args.ub;
         prob(mask_pos) = (args.ub-0.5)*(prob(mask_pos) - 0.5)/(maxProb-0.5) + 0.5;
     end
