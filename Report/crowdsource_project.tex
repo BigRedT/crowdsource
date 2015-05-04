@@ -132,7 +132,7 @@ In the sequel, allowing for a slight abuse of notation, we need only refer to
   \gamma_i:=\gamma_i(1)&=\mathbb{P}(t_i=1|\textbf{A},\textbf{p}^{{\rm old}})\\
   &=\frac{\mathbb{P}(A_{i\partial i}|t_i=1,{\bf p})\mathbb{P}(t_i=1)}{\mathbb{P}(A_{i\partial i}|t_i=1,{\bf p})\mathbb{P}(t_i=1)+\mathbb{P}(A_{i\partial i}|t_i=-1,{\bf p})\mathbb{P}(t_i=-1)}\\
   &=\frac{\frac{3}{4}\prod_{j\in\partial i} p_j^{\mathbb{I}(A_{ij}=1)}(1-p_j)^{\mathbb{I}(A_{ij}=-1)}}{\frac{3}{4}\prod_{j\in\partial i} p_j^{\mathbb{I}(A_{ij}=1)}(1-p_j)^{\mathbb{I}(A_{ij}=-1)}+\frac{1}{4}\prod_{j\in\partial i} p_j^{\mathbb{I}(A_{ij}=-1)}(1-p_j)^{\mathbb{I}(A_{ij}=1)}}\\
-  &=\frac{\frac{3}{4}\prod_{j\in\partial i} \left[\frac{1}{2}+\frac{2p_j-1}{2}A_{ij}\right]}{\frac{3}{4}\prod_{j\in\partial i} \left[\frac{1}{2}+\frac{2p_j-1}{2}A_{ij}\right]+\frac{1}{4}\prod_{j\in\partial i} \left[\frac{1}{2}-\frac{2p_j-1}{2}A_{ij}\right]}
+  &=\frac{\frac{3}{4}\prod_{j\in\partial i} \left[\frac{1}{2}+(p_j-\frac{1}{2})A_{ij}\right]}{\frac{3}{4}\prod_{j\in\partial i} \left[\frac{1}{2}+(p_j-\frac{1}{2})A_{ij}\right]+\frac{1}{4}\prod_{j\in\partial i} \left[\frac{1}{2}-(p_j-\frac{1}{2})A_{ij}\right]}
 \end{align*}
 \subsubsection*{M-Step:}
 In this we approximate the log likelihood of the observed data using the expected log likelihood of the observed and latent variables together where the expectation is with respect to the distribution of the latent variables computed in the \textbf{E} step
@@ -332,11 +332,11 @@ To examine the performance of our two contributions over a range of edge budget 
 \begin{figure}
 \centering
 \includegraphics[width=5in]{py_mean_perc_err_100_workers.pdf}
-\caption{Mean percent classification error for the 4 modes of estimation: random graph construction both with and without transformed beta prior and adaptive graph construction using EM with and without the transformed beta prior.  Note that in the random graph generation cases, the results of EM both with and without prior are almost identical.  However, when graph construction is done adaptively, and thus depends on the output of EM, we see a marked improvement by including worker ability prior data.}
+\caption{Mean percent classification error for the 4 modes of estimation: random graph construction both with and without transformed beta prior and adaptive graph construction using EM with and without the transformed beta prior.  Note that in the random graph generation cases, the results of EM both with and without prior are almost identical.  However, when graph construction is done adaptively, and thus depends on the output of EM, we see a marked improvement by including worker ability prior data. Plot generated from 100 Monte Carlo samples, error bars not shown.}
 \label{fig:mean_err_100_workers}
 \end{figure} 
 
-
+\pagebreak
 
 \begin{thebibliography}{99}
 \bibitem{LiPeIh2012} Q. Liu, J. Peng, and A. T. Ihler. ``Variational Inference for Crowdsourcing''. {\it Advances in Neural Information Processing Systems}, 2012. 
