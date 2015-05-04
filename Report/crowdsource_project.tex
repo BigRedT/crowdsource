@@ -44,6 +44,8 @@
  
 \lstset{style=mystyle}
 
+\graphicspath{{Figures/}}
+
 \begin{document}
 
 %\begin{minipage}{0.5\textwidth}
@@ -302,7 +304,15 @@ We adapt to the current state of the EM estimate and graph by training a random 
 \section{Numerical Results}
 To examine the performance of our two contributions over a range of edge budget values, we consider a bipartite graph initialization $G^{(0)}$ that assigns one worker to every task and at least one task to each of $m<n$ workers, using the fewest edges possible (2000).  As a baseline for comparison, we consider a technique where at each step $\ell$, we add edges by sampling uniformly from the tasks $i\in[n]$ and then uniformly selecting a worker not already assigned to that task, $j\in[m]\setminus\partial i$. We then proceed by adding edges (either randomly or adaptively) and computing the EM estimates periodically. 
 
-\todo{Plots and discussion}
+\begin{figure}
+\centering
+\includegraphics[width=5in]{py_mean_perc_err_100_workers.pdf}
+\caption{Mean percent classification error for the 4 modes of estimation: random graph construction both with and without transformed beta prior and adaptive graph construction using EM with and without the transformed beta prior.  Note that in the random graph generation cases, the results of EM both with and without prior are almost identical.  However, when graph construction is done adaptively, and thus depends on the output of EM, we see a marked improvement by including worker ability prior data.}
+\label{fig:mean_err_100_workers}
+\end{figure} 
+
+
+
 \begin{thebibliography}{99}
 \bibitem{LiPeIh2012} Q. Liu, J. Peng, and A. T. Ihler. ``Variational Inference for Crowdsourcing''. {\it Advances in Neural Information Processing Systems}, 2012. 
 \bibitem{RaYuZhVaFlBoMo2010} V. C. Raykar, S. Yu, L. H. Zhao, G. H. Valadez, C. Florin, L. Bogoni, and L. Moy. ``Learning from crowds''. {\it The Journal of Machine Learning Research}, 11:1297-1322, 2010.
