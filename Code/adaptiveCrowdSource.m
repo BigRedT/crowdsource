@@ -98,7 +98,7 @@ while(num_edges_used<edge_budget)
 %     plot(selected_thresh,precision,'b-'); xlabel('Number of ranked tasks observed'); ylabel('Precision'); axis([1 RF_ensemble_size*num_tasks 0 1]);
     subplot(1,2,2);
     semilogy(num_edges,error(:,1),'b-'); hold on; semilogy(num_edges,error_r(:,1),'r-'); hold off;
-    xlim([0 30000])
+    xlim([0 30000]); ylim([0.01 100])
     legend({'EdgeAdapt','Random'});
     xlabel('number of edges used')
     ylabel('percent task assignment error')
