@@ -312,7 +312,13 @@ The splitting criterion is chosen using some notion of information gain such as 
 \Delta = \sum_{j=1}^{C}p_i(l_j)\log{p_i(l_j)} - \left[\sum_{j=1}^{C}p_{\mathrm{left}(i)}(l_j)\log{p_{\mathrm{left}(i)}(l_j)} - 
 \sum_{j=1}^{C}p_{\mathrm{right}(i)}(l_j)\log p_{\mathrm{right}(i)}(l_j)\right] 
 \end{equation*}
-The feature and threshold used for splitting at a node is the one that maximizes $\Delta$.
+The feature and threshold used for splitting at a node is the one that maximizes $\Delta$. 
+
+Random forest is simply a way to reduce over-fitting in a decision tree by using ensemble of decision trees where each tree is trained on a subset of randomly sampled training data. Inference on a random forest is done by passing $\textbf{v}$ through each tree and then averaging their predictions. So the final posterior class probabilities are 
+\begin{equation*}
+P(l|\textbf{v}) = \frac{1}{T} \sum_{t=1}^{T} P_t(l|\textbf{v})
+\end{equation*}
+where $T$ is the number of trees and $P_t$ is probability obtained from the $t^{th}$ tree.
 
 
 \section{Numerical Results}
