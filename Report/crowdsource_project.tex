@@ -300,13 +300,12 @@ Note that if, instead, we model $p_j$ as $\operatorname{Beta}(\alpha,\beta)$, th
 \section{Adaptive Graph Construction}
 We adapt to the current state of the EM estimate and graph by training a random forest classifier to estimate which label assignments are most likely incorrect.  Given the current graph, the algorithm for adaptive edge assignment proceeds as follows.  At iteration $\ell$, we are given a current graph $G^{(\ell)}$ and an EM estimate $(\gamma^{(\ell)}, \hat{\bf p}^{(\ell)})$. The current graph $G^{(\ell)}$ is passed to a random forest generation algorithm that has access to the $\bf{t}$ and $\bf{p}$ prior distributions.  The random forest generator then runs EM on ensembles of i.i.d. randomly generated instances of $({\bf A^{(\ell)},t^{(\ell)},p^{(\ell)}})_e$ to produce task label probabilies ${\hat{\bf{\gamma}}^{(\ell)}}_e$ and worker ability maximum likelihood estimates $\hat{\bf p}^{(\ell)}_e$ and trains a random forest classifier using entropy of label probability estimates $h(\hat\gamma^{(\ell)}_e)$, number of workers assigned to a task $|\partial i^{(\ell)}|$, and a histogram of $\{\hat{p}^{(\ell)}_{\partial i}\}$ as features and incorrectness of task assignments as the true labels.  The resulting random forest classifier is then returned to the main algorithm, which uses the random forest and EM estimates of the current graph to rank the actual tasks by likelihood of mislabeling.  The $K$ highest risk tasks $\{i_k\}_{k=1}^K$ are then assigned one new worker chosen uniformly from the population of workers who are not already assigned to that task.  These edges are then added to $G^{(\ell)}$ to produce $G^{(\ell+1)}$.
 \subsection{Random Forest}
-Random forest is an ensemble machine learning algorithm that has wide applicability in classification and regression tasks. The basic unit of a random forest is a decision tree. Each node in the tree represents a binary decision on a feature and every path from the root to a leaf represents a logical conjunction of the binary decisions encountered along the path. Learning a decision tree from data $\mathcal{D}=\{(\textbf{x}_i,l_i)|i=1,\cdots,M\}$ comprising of $M$ $<$features,label$>$ pairs involves choosing a feature and a threshold that forms the splitting criterion for each node and assigning each $\textbf{x}_i$ to one of the leaves, $L_i$ in the tree where $L_i \in \{1,\cdots, N\}$ if there are $N$ leaves in the tree. During inference a new feature vector $\textbf{v}$ follows a path from the root to some leaf $L$ in the tree and gets a class posterior distribution given by
+Random forest~\cite{Bre2001} is an ensemble machine learning algorithm that has wide applicability in classification and regression tasks. The basic unit of a random forest is a decision tree. Each node in the tree represents a binary decision on a feature and every path from the root to a leaf represents a logical conjunction of the binary decisions encountered along the path. Learning a decision tree from data $\mathcal{D}=\{(\textbf{x}_i,l_i)|i=1,\cdots,M\}$ comprising of $M$ $($feature, label$)$ pairs involves choosing a feature and a threshold that forms the splitting criterion for each node and assigning each $\textbf{x}_i$ to one of the leaves, $L_i$ in the tree where $L_i \in \{1,\cdots, N\}$ if there are $N$ leaves in the tree. During inference a new feature vector $\textbf{v}$ follows a path from the root to some leaf $L$ in the tree and gets a class posterior distribution given by
 \begin{equation*}
 P(l|\textbf{v}) = \frac{\sum_{i=1}^{M}\mathbb{I}(L_i=L)\mathbb{I}(l_i=l)}
-{\sum_{i=1}^{M}\mathbb{I}(L_i=L)}
+{\sum_{i=1}^{M}\mathbb{I}(L_i=L)}.
 \end{equation*}
 
-\noindent
 The splitting criterion is chosen using some notion of information gain such as decrease in entropy after splitting. Let left$(i)$ and right$(i)$ denote the left and right children of node $i$ and $p_i(l)$ be the fraction of training data points that reached node $i$ which had label $l$. Then the information gain for a particular splitting criterion is evaluated as follows:
 \begin{equation*}
 \Delta = \sum_{j=1}^{C}p_i(l_j)\log{p_i(l_j)} - \left[\sum_{j=1}^{C}p_{\mathrm{left}(i)}(l_j)\log{p_{\mathrm{left}(i)}(l_j)} - 
@@ -320,9 +319,15 @@ P(l|\textbf{v}) = \frac{1}{T} \sum_{t=1}^{T} P_t(l|\textbf{v})
 \end{equation*}
 where $T$ is the number of trees and $P_t$ is probability obtained from the $t^{th}$ tree.
 
+\begin{figure}
+\centering
+\includegraphics[width=5in]{Random_Forest.pdf}
+\caption{Illustration of the random forest technique, whereby an ensemble of decision trees are combined to produce an estimate of the probability of a correct response.  Image from~\cite{KiKa2013}}
+\label{fig:rf}
+\end{figure} 
 
 \section{Numerical Results}
-To examine the performance of our two contributions over a range of edge budget values, we consider a bipartite graph initialization $G^{(0)}$ that assigns one worker to every task and at least one task to each of $m<n$ workers, using the fewest edges possible (2000).  As a baseline for comparison, we consider a technique where at each step $\ell$, we add edges by sampling uniformly from the tasks $i\in[n]$ and then uniformly selecting a worker not already assigned to that task, $j\in[m]\setminus\partial i$. We then proceed by adding edges (either randomly or adaptively) and computing the EM estimates periodically. 
+To examine the performance of our two contributions over a range of edge budget values, we consider a bipartite graph initialization $G^{(0)}$ that assigns one worker to every task and at least one task to each of $m<n$ workers, using the fewest edges possible (2000).  As a baseline for comparison, we consider a technique where at each step $\ell$, we add edges by sampling uniformly from the tasks $i\in[n]$ and then uniformly selecting a worker not already assigned to that task, $j\in[m]\setminus\partial i$. We then proceed by adding edges (either randomly or adaptively) and computing the EM estimates periodically. The results of averaging 100 such experiments are show in Figure~\ref{fig:mean_err_100_workers}
 
 \begin{figure}
 \centering
@@ -337,6 +342,7 @@ To examine the performance of our two contributions over a range of edge budget 
 \bibitem{LiPeIh2012} Q. Liu, J. Peng, and A. T. Ihler. ``Variational Inference for Crowdsourcing''. {\it Advances in Neural Information Processing Systems}, 2012. 
 \bibitem{RaYuZhVaFlBoMo2010} V. C. Raykar, S. Yu, L. H. Zhao, G. H. Valadez, C. Florin, L. Bogoni, and L. Moy. ``Learning from crowds''. {\it The Journal of Machine Learning Research}, 11:1297-1322, 2010.
 \bibitem{Bre2001} L. Breiman. ``Random Forests''. {\it Machine Learning}, vol. 45(1):5-32, 2001.
+\bibitem{KiKa2013} O. Kim and D. J. Kang. ``Fire detection system using random forest classification for image sequences of complex background''. {\it Optical Engineering}, 52(6), 067202, 2013. 
 %\bibitem{RaPeCaGi2005} M. Rathinam, L. R. Petzold, Y. Cao, and D. T. Gillespie, ``Consistency and stability of tau-leaping schemes for chemical reaction systems''. {\it Multiscale Modeling and Simulation}, vol. 4(3):867Ð895, 2005.
 \end{thebibliography}
 \end{document}
