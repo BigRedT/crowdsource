@@ -16,10 +16,15 @@ error = [];
 num_edges = [];
 error_r = [];
 elapsed_time = [];
+count =0;
+fig_h = figure('units','normalized','outerposition',[0 0 1 1]);
+% set(fig_h,'visible','off');
 while(num_edges_used<edge_budget)
+    count = count+1;
     tStart = tic;
     worker_counts = sum(abs(A),2);
-%     figure(1),histvals=histc(worker_counts,[0:1:num_workers]);
+%     figure(1),
+    histvals=histc(worker_counts,[0:1:num_workers]);
 %     bar(histvals);
 %    xlim([0, 30]);
     %% Run EM
@@ -43,7 +48,7 @@ while(num_edges_used<edge_budget)
     error_r = [error_r; [perc_err_r, work_err_r]];
         
     %% learn RF
-    RF_model = learnRF(graph,RF_ensemble_size,prior_type);
+    [RF_model, precision, recall, selected_thresh] = learnRF(graph,RF_ensemble_size,prior_type);
     
     %% Gen features
     features = genFeatures(prob_t_given_A_p,worker_abilities,graph);
@@ -82,18 +87,25 @@ while(num_edges_used<edge_budget)
     elapsed_time = [elapsed_time toc(tStart)];
     
     
-    [error(:,1) error_r(:,1)];
-%     figure(2)
-%     semilogy(num_edges,error(:,1),'b-');
-%     hold on;
-%     semilogy(num_edges,error_r(:,1),'r-');
-%     hold off;
-%     legend({'EdgeAdapt','Random'});
-%     xlabel('number of edges used')
-%     ylabel('percent task assignment error')
-%     
+%     [error(:,1) error_r(:,1)];
+
+    figure(fig_h);
+    subplot(1,2,1);
+    bar(histvals); xlim([0 num_workers]); xlabel('Number of workers on the task'); ylabel('Frequency of tasks');
+%     subplot(2,2,3);
+%     plot(recall,precision,'r-'); xlabel('Recall'); ylabel('Precision'); axis([0 1 0 1]);
+%     subplot(2,2,4);
+%     plot(selected_thresh,precision,'b-'); xlabel('Number of ranked tasks observed'); ylabel('Precision'); axis([1 RF_ensemble_size*num_tasks 0 1]);
+    subplot(1,2,2);
+    semilogy(num_edges,error(:,1),'b-'); hold on; semilogy(num_edges,error_r(:,1),'r-'); hold off;
+    xlim([0 30000])
+    legend({'EdgeAdapt','Random'});
+    xlabel('number of edges used')
+    ylabel('percent task assignment error')
+    saveas(gcf,['Figures/' num2str(count) '.png']);
 %     figure(3)
 %     plot(num_edges, elapsed_time, 'b-');
+    
 end
    
 
@@ -121,6 +133,8 @@ error_r = [error_r; [perc_err_r, work_err_r]];
 
 tStop = toc(tStart);
 elapsed_time = [elapsed_time tStop];
+
+
 
 % figure(2)
 % plot(num_edges,error(:,1),'b-');

@@ -1,4 +1,4 @@
-function model = learnRF(graph,ensemble_size,prior_type)
+function [model,precision, recall, selected_thresh] = learnRF(graph,ensemble_size,prior_type)
 prob_t_given_A_p = cell(ensemble_size,1);
 worker_abilities = cell(ensemble_size,1);
 t = cell(ensemble_size,1);
@@ -25,7 +25,7 @@ Y = double(correct);
 [sort_p_correct,sort_idx] = sort(ps(:,1),'descend');
 [sort_p_correct,Y(sort_idx)];
 
-[precision,recall] = getROC(ps,Y,T,num_tasks);
+[precision,recall,selected_thresh] = getROC(ps,Y,T,num_tasks);
 
 % disp('Total EM error')
 % sum(~correct)

@@ -1,4 +1,4 @@
-function [precision,recall] = getROC(ps,Y,T,num_tasks)
+function [precision,recall,K] = getROC(ps,Y,T,num_tasks)
 recall = zeros(1000,1);
 precision = zeros(1000,1);
 K = zeros(1000,1);
