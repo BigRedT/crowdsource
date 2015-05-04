@@ -7,6 +7,7 @@
 %\usepackage[ampersand]{easylist}
 \usepackage{listings}
 \usepackage[margin=0.5in]{geometry}
+\bibliographystyle{plain}
 %\usepackage{marginnote}
 
 \newcommand{\indep}{\rotatebox[origin=c]{90}{$\models$}}
@@ -15,6 +16,7 @@
 \setlength\parindent{0.2in}
 
 \usepackage{color}
+\newcommand{\todo}[1]{{\color{red} #1}}
  
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
@@ -44,34 +46,42 @@
 
 \begin{document}
 
-\begin{minipage}{0.5\textwidth}
-\begin{flushleft}
-    \subsection*{NAME: Tanmay Gupta}
-\end{flushleft}
-\end{minipage}
-\hfill
-\begin{minipage}{0.5\textwidth}
-\begin{flushright}
-    \subsection*{NET ID: tgupta6}
-\end{flushright}
-\end{minipage}
+%\begin{minipage}{0.5\textwidth}
+%\begin{flushleft}
+%    \subsection*{NAME: Tanmay Gupta}
+%\end{flushleft}
+%\end{minipage}
+%\hfill
+%\begin{minipage}{0.5\textwidth}
+%\begin{flushright}
+%    \subsection*{NET ID: tgupta6}
+%\end{flushright}
+%\end{minipage}
 
-\begin{minipage}{0.5\textwidth}
-\begin{flushleft}
-    \subsection*{NAME: Peter Maginnis}
-\end{flushleft}
-\end{minipage}
-\hfill
-\begin{minipage}{0.5\textwidth}
-\begin{flushright}
-    \subsection*{NET ID: maginni1}
-\end{flushright}
-\end{minipage}\begin{center}
-    \Large\textbf{IE598: Inference in Graphical Models}\\
-    \textbf{Homework 3}
-\end{center}
+%\begin{minipage}{0.5\textwidth}
+%\begin{flushleft}
+%    \subsection*{NAME: Peter Maginnis}
+%\end{flushleft}
+%\end{minipage}
+%\hfill
+%\begin{minipage}{0.5\textwidth}
+%\begin{flushright}
+%    \subsection*{NET ID: maginni1}
+%\end{flushright}
+%\end{minipage}\begin{center}
+%    \Large\textbf{IE598: Inference in Graphical Models}\\
+%    \textbf{Homework 3}
+%\end{center}
 
-\section*{EM without prior}
+\title{Adaptive Crowdsourcing via EM with Prior}
+\author{Peter Maginnis and Tanmay Gupta}
+\maketitle
+
+In this work, we make two primary contributions: derivation of the EM update for the shifted and rescaled beta prior and the development of an algorithm to adaptively select new edges (task assignments) for more efficient use of an edge budget (i.e. reduced probability of task labeling error for a fixed number of edges).  The algorithm exploits several observable features of a task (namely the entropy of its label probabilities, the number of workers already assigned to it, and a histogram of estimated worker abilities for its neighbors) to produce a ranking of tasks most likely to be currently mislabeled.  An additional worker (sampled uniformly) is then assigned to each of the highest ranking tasks and the graph is updated.  Rankings are produced by a random forest classifier that is given the current graph structure and prior information, and trained on ensembles of randomly generated data. 
+
+First, we derive the EM updates for the crowdsourcing problem both without and with knowledge of the transformed beta prior.  Next we outline the adaptive algorithm used to assign edges in graph construction using the random forest classifier.  Finally, we present numerical results demonstrating the effectiveness of these techniques over a range of edge budgets.
+\section{Expectation-Maximization for Crowdsourcing}
+\subsection*{EM without prior}
 We treat $\textbf{A}$ as our observed variables, $\textbf{t}$ as latent variables and $\textbf{p}$ as parameters. Then the joint distribution will be given as:
 \begin{align*}
 \mathbb{P}(\textbf{A},\textbf{t}|\textbf{p}) &= \mathbb{P}(\textbf{A}|\textbf{t},\textbf{p})\mathbb{P}(\textbf{t}|\textbf{p}) \\
@@ -87,7 +97,7 @@ where,
 \frac{3}{4}\mathbb{I}(t_i=1)+\frac{1}{4}\mathbb{I}(t_i=-1)
 \end{align*}
 
-\subsection*{E-Step:}
+\subsubsection*{E-Step:}
 In the \textbf{E} step we find the distribution of the latent variables as a function of the observed variables and parameters estimated in the previous iteration.
 \begin{align*}
 \mathbb{P}(\textbf{t}|\textbf{A},\textbf{p}^{{\rm old}}) &= 
@@ -98,13 +108,13 @@ In the \textbf{E} step we find the distribution of the latent variables as a fun
 where,
 \begin{align*}
 \mathbb{P}(t_i|\textbf{A},\textbf{p}^{{\rm old}}) &=
-\mathbb{P}(t_i|\textbf{A}_{i\partial i},\textbf{p}_{\partial i}^{{\rm old}}) \\
+\mathbb{P}(t_i|A_{i\partial i},p_{\partial i}^{{\rm old}}) \\
 &= 
 \frac{
-\mathbb{P}(\textbf{A}_{i\partial i},\textbf{t}_i|\textbf{p}_{\partial i}^{{\rm old}})
+\mathbb{P}(A_{i\partial i},t_i|p_{\partial i}^{{\rm old}})
 } 	
 {
-\mathbb{P}(\textbf{A}_{i\partial i}|\textbf{p}_{\partial i}^{{\rm old}})
+\mathbb{P}(A_{i\partial i}|p_{\partial i}^{{\rm old}})
 } \\
 &=
 \frac{
@@ -122,7 +132,7 @@ In the sequel, allowing for a slight abuse of notation, we need only refer to
   &=\frac{\frac{3}{4}\prod_{j\in\partial i} p_j^{\mathbb{I}(A_{ij}=1)}(1-p_j)^{\mathbb{I}(A_{ij}=-1)}}{\frac{3}{4}\prod_{j\in\partial i} p_j^{\mathbb{I}(A_{ij}=1)}(1-p_j)^{\mathbb{I}(A_{ij}=-1)}+\frac{1}{4}\prod_{j\in\partial i} p_j^{\mathbb{I}(A_{ij}=-1)}(1-p_j)^{\mathbb{I}(A_{ij}=1)}}\\
   &=\frac{\frac{3}{4}\prod_{j\in\partial i} \left[\frac{1}{2}+\frac{2p_j-1}{2}A_{ij}\right]}{\frac{3}{4}\prod_{j\in\partial i} \left[\frac{1}{2}+\frac{2p_j-1}{2}A_{ij}\right]+\frac{1}{4}\prod_{j\in\partial i} \left[\frac{1}{2}-\frac{2p_j-1}{2}A_{ij}\right]}
 \end{align*}
-\subsection*{M-Step:}
+\subsubsection*{M-Step:}
 In this we approximate the log likelihood of the observed data using the expected log likelihood of the observed and latent variables together where the expectation is with respect to the distribution of the latent variables computed in the \textbf{E} step
 \begin{align*}
 Q(\textbf{p}|\textbf{p}^{{\rm old}}) &= 
@@ -239,7 +249,7 @@ p_j =
 \mathbb{I}(A_{ij}=-1)\right]
 \end{align*}
 
-\section*{EM with Beta Prior}
+\subsection*{EM with Beta Prior}
 
 Instead, we seek to maximize the objective 
 \begin{align*}
@@ -275,12 +285,29 @@ Define
 \end{equation*}
 Then, we may more compactly write the quadratic equation
 \begin{equation*}
-  0=(p_j-0.1)|\partial j|[\lambda_j-p_j]+(\alpha-1)p_j(1-p_j)-(\beta-1)p_j(p_j-0.1).
+  0=(p_j-0.1)|\partial j|(\lambda_j-p_j)+(\alpha-1)p_j(1-p_j)-(\beta-1)p_j(p_j-0.1).
 \end{equation*}
-Alternatively, suppose we approximated $p_j$ as $\operatorname{Beta}(\alpha,\beta)$, then the above becomes
+Numerical results indicate that the smaller root lies outside the support, $[0.1,1]$, of the worker ability distribution, and the larger root is always taken for the EM update. 
+
+Note that if, instead, we model $p_j$ as $\operatorname{Beta}(\alpha,\beta)$, then the above analysis recovers the update found in~\cite{LiPeIh2012,RaYuZhVaFlBoMo2010}. Specifically, the critical equation becomes
 \begin{align*}
   0&=|\partial j|(\lambda_j-p_j)+(\alpha-1)(1-p_j)-(\beta-1)p_j\\
   &\implies \lambda_j|\partial j|+\alpha-1=(|\partial j|+\alpha+\beta-2)p_j\\
   &\implies p_j=\frac{\sum_{i\in\partial j}\left[\gamma_i\mathbb{I}(A_{ij}=1)+(1-\gamma_i)\mathbb{I}(A_{ij}=-1)\right]+\alpha-1}{|\partial j|+\alpha+\beta-2}
 \end{align*}
+\section{Adaptive Graph Construction}
+Given the current graph, the algorithm for adaptive edge assignment proceeds as follows.  At iteration $\ell$, we are given a current graph $G^{(\ell)}$ and an EM estimate $(\gamma^{(\ell)}, \hat{\bf p}^{(\ell)})$. The current graph $G^{(\ell)}$ is passed to a random forest generation algorithm that has access to the $\bf{t}$ and $\bf{p}$ prior distributions.  The random forest generator then runs EM on ensembles of i.i.d. randomly generated instances of $({\bf A^{(\ell)},t^{(\ell)},p^{(\ell)}})_e$ to produce task label probabilies ${\hat{\bf{\gamma}}^{(\ell)}}_e$ and worker ability maximum likelihood estimates $\hat{\bf p}^{(\ell)}_e$ and trains a random forest classifier using entropy of label probability estimates $h(\hat\gamma^{(\ell)}_k)$, number of workers assigned to a task $|\partial i^{(\ell)}|$, and a histogram of $\{\hat{p}^{(\ell)}_{\partial i}\}$ as features and true task values as the true labels.  The resulting random forest classifier is then returned to the main algorithm, which uses the random forest and EM estimates of the current graph to rank the actual tasks by likelihood of mislabeling.  The $K$ highest risk tasks $\{i_k\}_{k=1}^K$ are then assigned one new worker chosen uniformly from the population of workers who are not already assigned to that task.  These edges are then added to $G^{(\ell)}$ to produce $G^{(\ell+1)}$.
+\subsection{Random Forest Classifier}
+\todo{Tanmay fill in some details about RF}
+\section{Numerical Results}
+To examine the performance of our two contributions we consider a bipartite graph initialization $G^{(0)}$ that assigns at one worker to every task and at least one task to each of $m$ workers, using the fewest edges possible (2000).  As a baseline for comparison, we consider a technique where at each step $\ell$, we add edges by sampling uniformly from the tasks $i\in[n]$ and then uniformly selecting a worker not already assigned to that task, $j\in[m]\setminus\partial i$. We then proceed by adding edges (either randomly or adaptively) and computing the EM estimates periodically. 
+\subsection{Effects of Worker Ability Prior}
+\todo{Plot and discussion of EM w/ and w/o prior with random edge assignment.}
+\subsection{Adaptive Task Selection}
+\todo{Plot and discussion of comparison between random edge assignment and adaptive edge assignment for the w/ and w/o prior cases.}
+\begin{thebibliography}{99}
+\bibitem{LiPeIh2012} Q. Liu, J. Peng, and A. T. Ihler. ``Variational Inference for Crowdsourcing''. {\it Advances in Neural Information Processing Systems}, 2012. 
+\bibitem{RaYuZhVaFlBoMo2010} V. C. Raykar, S. Yu, L. H. Zhao, G. H. Valadez, C. Florin, L. Bogoni, and L. Moy. ``Learning from crowds''. {\it The Journal of Machine Learning Research}, 11:1297-1322, 2010.
+%\bibitem{RaPeCaGi2005} M. Rathinam, L. R. Petzold, Y. Cao, and D. T. Gillespie, ``Consistency and stability of tau-leaping schemes for chemical reaction systems''. {\it Multiscale Modeling and Simulation}, vol. 4(3):867Ð895, 2005.
+\end{thebibliography}
 \end{document}
