@@ -310,9 +310,10 @@ P(l|\textbf{v}) = \frac{\sum_{i=1}^{M}\mathbb{I}(L_i=L)\mathbb{I}(l_i=l)}
 {\sum_{i=1}^{M}\mathbb{I}(L_i=L)}.
 \end{equation*}
 
-The splitting criterion is chosen using some notion of information gain such as decrease in entropy after splitting. Let left$(i)$ and right$(i)$ denote the left and right children of node $i$ and $p_i(l)$ be the fraction of training data points that reached node $i$ which had label $l$. Then the information gain for a particular splitting criterion is evaluated as follows:
+The splitting criterion is chosen using some notion of information gain such as decrease in entropy after splitting. Let left$(i)$ and right$(i)$ denote the left and right children of node $i$ and $p_i(l)$ be the fraction of training data points that reached node $i$ which had label $l$. Also define $S_i$ as the number of data points that reach node $i$. Then the information gain for a particular splitting criterion is evaluated as follows:
 \begin{equation*}
-\Delta = \sum_{j=1}^{C}p_i(l_j)\log{p_i(l_j)} - \left[\sum_{j=1}^{C}p_{\mathrm{left}(i)}(l_j)\log{p_{\mathrm{left}(i)}(l_j)} - 
+\Delta = \sum_{j=1}^{C}p_i(l_j)\log{p_i(l_j)} - \left[\frac{S_{\mathrm{left}(i)}}{S_i}\sum_{j=1}^{C}p_{\mathrm{left}(i)}(l_j)\log{p_{\mathrm{left}(i)}(l_j)} - 
+\frac{S_{\mathrm{right}(i)}}{S_i}
 \sum_{j=1}^{C}p_{\mathrm{right}(i)}(l_j)\log p_{\mathrm{right}(i)}(l_j)\right] 
 \end{equation*}
 The feature and threshold used for splitting at a node is the one that maximizes $\Delta$. 
