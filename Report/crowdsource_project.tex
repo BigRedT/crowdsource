@@ -300,6 +300,7 @@ Note that if, instead, we model $p_j$ as $\operatorname{Beta}(\alpha,\beta)$, th
   0&=|\partial j|(\lambda_j-p_j)+(\alpha-1)(1-p_j)-(\beta-1)p_j\\
   &\implies \lambda_j|\partial j|+\alpha-1=(|\partial j|+\alpha+\beta-2)p_j\\
   &\implies p_j=\frac{\sum_{i\in\partial j}\left[\gamma_i\mathbb{I}(A_{ij}=1)+(1-\gamma_i)\mathbb{I}(A_{ij}=-1)\right]+\alpha-1}{|\partial j|+\alpha+\beta-2}\\
+    &\implies p_j=\frac{\sum_{i\in\partial j}\left[\frac{1}{2}+\left(\gamma_i-\frac{1}{2}\right)A_{ij}\right]+\alpha-1}{|\partial j|+\alpha+\beta-2}\\
   &\implies p_j=p_j^\text{ no prior }\left(1-\frac{\alpha+\beta-2}{\alpha+\beta-2+|\partial j|}\right)+\frac{\alpha-1}{\alpha+\beta-2}\left(1-\frac{|\partial j|}{\alpha+\beta-2+|\partial j|}\right),
 \end{align*}
 where $\frac{\alpha-1}{\alpha+\beta-2}$ is the mode of $\operatorname{Beta}(\alpha,\beta)$.
